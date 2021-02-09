@@ -7,7 +7,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class QQuickView;
+class ClickView;
 
 class MainWindow : public QMainWindow {
         Q_OBJECT
@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow {
 
     private:
         Ui::MainWindow* ui;
-        QQuickView* qw1;
-        QQuickView* qw2;
+        ClickView* qw1;
+        ClickView* qw2;
 };
 #endif // MAINWINDOW_HPP
