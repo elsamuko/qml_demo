@@ -3,25 +3,32 @@
 #include <QQuickItem>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QRegularExpression>
 
 ClickView::ClickView( const QUrl& source, QWindow* parent ) : QQuickView( source, parent ) {}
 
-void dump( QList<QQuickItem*> items, size_t level = 1 ) {
-    for( const QQuickItem* item : items ) {
-        qDebug() << QString( level * 4, ' ' ) << item << item->objectName();
-        dump( item->childItems(), level + 1 );
-    }
-}
-
 void ClickView::mousePressEvent( QMouseEvent* ev ) {
-    QPointF pos = this->rootObject()->mapToItem( this->rootObject(), ev->pos() );
 
-    QQuickItem* child = this->rootObject()->childAt( pos.x(), pos.y() );
-    qDebug() << "childAt" << pos << child << child->objectName();
+    QObjectList children = this->findChildren<QObject*>( QRegularExpression( ".+" ) );
 
-    qDebug() << "children : ";
-    dump( this->rootObject()->childItems() );
+    for( QObject* child : children ) {
 
-    qDebug() << "";
+        // only search for QML types
+        if( !strstr( child->metaObject()->className(), "_QMLTYPE_" ) ) { continue; }
+
+        QVariant vX = child->property( "x" );
+        QVariant vY = child->property( "y" );
+        QVariant vW = child->property( "width" );
+        QVariant vH = child->property( "height" );
+
+        if( vX.isValid() && vY.isValid() && vW.isValid() && vH.isValid() ) {
+            QRect rect( vX.toInt(), vY.toInt(), vW.toInt(), vH.toInt() );
+
+            if( rect.contains( ev->pos() ) ) {
+                qDebug() << child;
+            }
+        }
+    }
+
     QQuickView::mousePressEvent( ev );
 }
